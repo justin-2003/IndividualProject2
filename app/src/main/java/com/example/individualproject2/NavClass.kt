@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.mutableStateOf
@@ -35,38 +36,48 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
 
 
 @Composable
 fun Navigation(){
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "splash_screen"){
+    NavHost(navController = navController, startDestination = "login_Page"){
         composable("splash_screen")
         {
             SplashScreen(navController)
         }
-        composable("first_screen") {
-            FirstScreen(navController)
+        composable("login_Page") {
+            Login(navController)
         }
-        composable("second_screen") {
-            SecondScreen(navController)
+        composable("firstQuestion") {
+            FirstQuestion(navController)
         }
-        composable("third_screen") {
-            ThirdScreen(navController)
+        composable("secondQuestion") {
+            SecondQuestion(navController)
         }
-        composable("fourth_screen") {
-            FourthScreen(navController)
+        composable("thirdQuestion") {
+            ThirdQuestion(navController)
         }
-        composable("fifth_screen") {
-            FifthScreen(navController)
+        composable("fourthQuestion") {
+            FourthQuestion(navController)
         }
-        composable("sixth_screen") {
-            SixthScreen(navController)
+        composable("fifthQuestion") {
+            FifthQuestion(navController)
         }
-        composable("seventh_screen") {
-            SeventhScreen(navController)
+        composable("sixthQuestion") {
+            SixthQuestion(navController)
+        }
+        composable("seventhQuestion") {
+            SeventhQuestion(navController)
         }
         composable("last_screen") {
             LastScreen(navController)
@@ -91,7 +102,7 @@ fun SplashScreen(navController: NavController){
             }
             ))
         delay(3000)
-        navController.navigate("first_screen")
+        navController.navigate("firstQuestion")
     }
 
     //Centers the text and image
@@ -100,9 +111,55 @@ fun SplashScreen(navController: NavController){
         Text("Who wants to be a millionaire")
     }
 }
+
+@Composable
+fun Login(navController: NavController) {
+
+    var text by remember { mutableStateOf(TextFieldValue("")) }
+    var password by rememberSaveable { mutableStateOf("") }
+
+    LazyColumn(Modifier.fillMaxSize()
+        .background(Color(0xFFD0BCFF)),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+        item {
+            TextField(
+                modifier = Modifier
+                    .padding(10.dp),
+
+                value = text,
+                label = { Text(text = "Email") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                onValueChange = { it ->
+                    text = it
+                }
+            )
+        }
+
+
+        item {
+            TextField(
+                modifier = Modifier
+                    .padding(10.dp),
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("password") },
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            )
+        }
+        item{
+            Button(onClick = { navController.navigate("secondQuestion") }) {
+                Text("Login")
+            }
+        }
+    }
+}
+
 // only commenting one Screen as they are all the same
 @Composable
-fun FirstScreen(navController: NavController) {
+fun FirstQuestion(navController: NavController) {
     val context = LocalContext.current
     val radioOptions = listOf("50", "61", "31", "21")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1]) }
@@ -176,7 +233,7 @@ fun FirstScreen(navController: NavController) {
                         if (selectedOption == "50") {
                             totalAmount += 100
                             numberOfCorrectAnswers += 1
-                            navController.navigate("second_screen")
+                            navController.navigate("secondQuestion")
                             // shows the toast to say that you answered correctly
                             Toast.makeText(
                                 context,
@@ -185,7 +242,7 @@ fun FirstScreen(navController: NavController) {
                             )
                                 .show()
                         } else {
-                            navController.navigate("second_screen")
+                            navController.navigate("secondQuestion")
                             // shows the toast to say that you answered wrong
                             Toast.makeText(
                                 context,
@@ -202,7 +259,7 @@ fun FirstScreen(navController: NavController) {
 }
 
 @Composable
-fun SecondScreen(navController: NavController) {
+fun SecondQuestion(navController: NavController) {
     val context = LocalContext.current
     val radioOptions = listOf("Venus", "Earth", "Mars","Jupyter")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1]) }
@@ -264,7 +321,7 @@ fun SecondScreen(navController: NavController) {
                 if (selectedOption == "Venus") {
                     totalAmount += 100
                     numberOfCorrectAnswers += 1
-                    navController.navigate("third_screen")
+                    navController.navigate("thirdQuestion")
                     //shows that you selected the right answer and the amount you have earned
                     Toast.makeText(
                         context,
@@ -273,7 +330,7 @@ fun SecondScreen(navController: NavController) {
                     )
                         .show()
                 } else {
-                    navController.navigate("third_screen")
+                    navController.navigate("thirdQuestion")
                     //Shows that you have answered the wrong answer and the amount you have
                     Toast.makeText(
                         context,
@@ -291,7 +348,7 @@ fun SecondScreen(navController: NavController) {
 }
 
 @Composable
-fun ThirdScreen(navController: NavController) {
+fun ThirdQuestion(navController: NavController) {
     val context = LocalContext.current
     val radioOptions = listOf("206", "186", "204","190")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1]) }
@@ -343,12 +400,12 @@ fun ThirdScreen(navController: NavController) {
                 if (selectedOption == "206") {
                     totalAmount += 100
                     numberOfCorrectAnswers += 1
-                    navController.navigate("fourth_screen")
+                    navController.navigate("fourthQuestion")
                     //shows that you selected the right answer and the amount you have earned
                     Toast.makeText(context, "Correct! You earned $totalAmount", Toast.LENGTH_SHORT)
                         .show()
                 } else {
-                    navController.navigate("fourth_screen")
+                    navController.navigate("fourthQuestion")
                     //Shows that you have answered the wrong answer and the amount you have
                     Toast.makeText(
                         context,
@@ -363,7 +420,7 @@ fun ThirdScreen(navController: NavController) {
     }
 }
 @Composable
-fun FourthScreen(navController: NavController) {
+fun FourthQuestion(navController: NavController) {
     val context = LocalContext.current
     val radioOptions = listOf("Cinnamon", "Cardamom", "Nutmeg","Black pepper")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1]) }
@@ -415,12 +472,12 @@ fun FourthScreen(navController: NavController) {
                 if (selectedOption == "Cardamom") {
                     totalAmount += 100
                     numberOfCorrectAnswers += 1
-                    navController.navigate("fifth_screen")
+                    navController.navigate("fifthQuestion")
                     //shows that you selected the right answer and the amount you have earned
                     Toast.makeText(context, "Correct! You earned $totalAmount", Toast.LENGTH_SHORT)
                         .show()
                 } else {
-                    navController.navigate("fifth_screen")
+                    navController.navigate("fifthQuestion")
                     //Shows that you have answered the wrong answer and the amount you have
                     Toast.makeText(
                         context,
@@ -435,7 +492,7 @@ fun FourthScreen(navController: NavController) {
     }
 }
 @Composable
-fun FifthScreen(navController: NavController) {
+fun FifthQuestion(navController: NavController) {
     val context = LocalContext.current
     val radioOptions = listOf("Mayella", "Scout", "Jem"," Calpurnia")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1]) }
@@ -487,12 +544,12 @@ fun FifthScreen(navController: NavController) {
                if (selectedOption == "Jem") {
                    totalAmount += 100
                    numberOfCorrectAnswers += 1
-                   navController.navigate("sixth_screen")
+                   navController.navigate("sixthQuestion")
                    //shows that you selected the right answer and the amount you have earned
                    Toast.makeText(context, "Correct! You earned $totalAmount", Toast.LENGTH_SHORT)
                        .show()
                } else {
-                   navController.navigate("sixth_screen")
+                   navController.navigate("sixthQuestion")
                    //Shows that you have answered the wrong answer and the amount you have
                    Toast.makeText(
                        context,
@@ -507,7 +564,7 @@ fun FifthScreen(navController: NavController) {
     }
 }
 @Composable
-fun SixthScreen(navController: NavController) {
+fun SixthQuestion(navController: NavController) {
     val context = LocalContext.current
     val radioOptions = listOf("Carrying oxygen", "Fighting infections", "Clotting blood","Regulating body temperature")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1]) }
@@ -559,12 +616,12 @@ fun SixthScreen(navController: NavController) {
                 if (selectedOption == "Carrying oxygen") {
                     totalAmount += 100
                     numberOfCorrectAnswers += 1
-                    navController.navigate("seventh_screen")
+                    navController.navigate("seventhQuestion")
                     //shows that you selected the right answer and the amount you have earned
                     Toast.makeText(context, "Correct! You earned $totalAmount", Toast.LENGTH_SHORT)
                         .show()
                 } else {
-                    navController.navigate("seventh_screen")
+                    navController.navigate("seventhQuestion")
                     //Shows that you have answered the wrong answer and the amount you have
                     Toast.makeText(
                         context,
@@ -579,7 +636,7 @@ fun SixthScreen(navController: NavController) {
     }
 }
 @Composable
-fun SeventhScreen(navController: NavController) {
+fun SeventhQuestion(navController: NavController) {
     val radioOptions = listOf("Tibia", "Femur", "Humerus","Radius")
     val context = LocalContext.current
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1]) }
