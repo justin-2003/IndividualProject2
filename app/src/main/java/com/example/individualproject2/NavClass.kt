@@ -37,7 +37,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
@@ -45,18 +47,28 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
+import com.example.individualproject2.data.AppPreference
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun Navigation(){
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "login_Page"){
-        composable("splash_screen")
-        {
+    NavHost(navController = navController, startDestination = "splash_screen"){
+        composable("splash_screen") {
             SplashScreen(navController)
+        }
+        composable("first_screen") {
+            FirstScreen(navController)
         }
         composable("login_Page") {
             Login(navController)
+        }
+        composable("signUp_Page") {
+            SignUp(navController)
+        }
+        composable("rules_page") {
+            RulesPage(navController)
         }
         composable("firstQuestion") {
             FirstQuestion(navController)
@@ -102,7 +114,7 @@ fun SplashScreen(navController: NavController){
             }
             ))
         delay(3000)
-        navController.navigate("firstQuestion")
+        navController.navigate("first_screen")
     }
 
     //Centers the text and image
@@ -113,54 +125,64 @@ fun SplashScreen(navController: NavController){
 }
 
 @Composable
-fun Login(navController: NavController) {
-
-    var text by remember { mutableStateOf(TextFieldValue("")) }
-    var password by rememberSaveable { mutableStateOf("") }
-
-    LazyColumn(Modifier.fillMaxSize()
-        .background(Color(0xFFD0BCFF)),
+fun FirstScreen(navController: NavController){
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFCCC2DC)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-        item {
-            TextField(
-                modifier = Modifier
-                    .padding(10.dp),
-
-                value = text,
-                label = { Text(text = "Email") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                onValueChange = { it ->
-                    text = it
-                }
-            )
-        }
-
-
-        item {
-            TextField(
-                modifier = Modifier
-                    .padding(10.dp),
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("password") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-            )
-        }
+    ){
         item{
-            Button(onClick = { navController.navigate("secondQuestion") }) {
+            //Takes you to Login page
+            Button(onClick = { navController.navigate("login_Page") }) {
                 Text("Login")
             }
         }
+
+        item{
+            Text("OR")
+        }
+
+        item{
+            //Takes you to the signUp page
+            Button(onClick = { navController.navigate("signUp_Page") }) {
+                Text("SignUp")
+            }
+        }
+
     }
 }
+
+//Rules Page
+@Composable
+fun RulesPage(navController: NavController) {
+    LazyColumn( modifier = Modifier
+        .fillMaxSize()
+        .padding(10.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        //Just shows the rules of the game and takes you to the first Question
+        item{Text("How to Play", fontSize = 24.sp, modifier = Modifier.padding(bottom = 16.dp))}
+        item{Text("1. The game consists of 7 questions. Try to answer as many as possible correctly.")}
+        item{ Text("2. For each correct answer, you’ll earn points, which are added to your total score.")}
+        item{Text("3. Once the game ends, you’ll see your total score and have the option to play again.")}
+        item{Text("4. Press 'Play Again' to restart the game and try for a higher score!")}
+        item{Button(onClick = { navController.navigate("firstQuestion") }){
+            Text("I'm Ready")
+        } }
+    }
+}
+
 
 // only commenting one Screen as they are all the same
 @Composable
 fun FirstQuestion(navController: NavController) {
+    //sets the numberOfCorrectAnswers and totalAmount to 0 when u start the game
+    numberOfCorrectAnswers = 0
+    totalAmount = 0
     val context = LocalContext.current
+    // the options for the questions
     val radioOptions = listOf("50", "61", "31", "21")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1]) }
 
@@ -714,8 +736,12 @@ fun SeventhQuestion(navController: NavController) {
     }
 }
 
+
 @Composable
 fun LastScreen(navController: NavController){
+    val store = AppStorage(LocalContext.current)
+    val appPrefs = store.appPreferenceFlow.collectAsState(AppPreference())
+    val coroutineScope = rememberCoroutineScope()
     LazyColumn(horizontalAlignment = Alignment.CenterHorizontally){
         //all the texts
         item{Text("Game over",
@@ -732,12 +758,20 @@ fun LastScreen(navController: NavController){
         //resets teh number of correct and total amount to zero and takes you to the first question
         item {
             Button(onClick = {
-                navController.navigate("first_screen")
-                numberOfCorrectAnswers = 0
-                totalAmount = 0
+                //saves the lastScore and LastAmount
+                coroutineScope.launch {
+                    store.saveLastScore(numberOfCorrectAnswers)
+                    store.saveLastAmount(totalAmount)
+                    delay(100)
+                }
+                navController.navigate("firstQuestion")
             }) {
                 Text("Play Again")
             }
+        }
+        item{
+            Text("Latest Score: ${appPrefs.value.lastAmount}," +
+                    "Latest Amount: ${appPrefs.value.lastScore}")
         }
     }
 }
